@@ -256,10 +256,11 @@ bool SPIRVTypeStruct::isPacked() const {
 }
 
 void SPIRVTypeStruct::setPacked(bool Packed) {
-  if (Packed)
-    addDecorate(new SPIRVDecorate(DecorationCPacked, this));
-  else
-    eraseDecorate(DecorationCPacked);
+  // TODO: do something?
+  // if (Packed)
+  //  addDecorate(new SPIRVDecorate(DecorationCPacked, this));
+  // else
+  //  eraseDecorate(DecorationCPacked);
 }
 
 SPIRVTypeArray::SPIRVTypeArray(SPIRVModule *M, SPIRVId TheId,

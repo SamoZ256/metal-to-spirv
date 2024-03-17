@@ -102,7 +102,7 @@ public:
   template <spv::Decoration NoIntegerWrapDecoration>
   void setNoIntegerDecorationWrap(bool HasNoIntegerWrap);
 
-  void setFPFastMathMode(SPIRVWord FPFastMathMode);
+  // void setFPFastMathMode(SPIRVWord FPFastMathMode);
 
   void validate() const override {
     SPIRVEntry::validate();

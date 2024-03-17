@@ -364,8 +364,8 @@ std::string getSPIRVExtFuncName(SPIRVExtInstSetKind Set, unsigned ExtOp,
     llvm_unreachable("invalid extended instruction set");
     ExtOpName = "unknown";
     break;
-  case SPIRVEIS_OpenCL:
-    ExtOpName = getName(static_cast<OCLExtOpKind>(ExtOp));
+  case SPIRVEIS_GLSL_450:
+    ExtOpName = getName(static_cast<GLSLExtOpKind>(ExtOp));
     break;
   }
   return prefixSPIRVName(SPIRVExtSetShortNameMap::map(Set) + '_' + ExtOpName +
@@ -415,7 +415,7 @@ Op getSPIRVFuncOC(StringRef S, SmallVectorImpl<std::string> *Dec) {
   Op OC;
   SmallVector<StringRef, 2> Postfix;
   StringRef Name;
-  if (!oclIsBuiltin(S, Name))
+  if (!glslIsBuiltin(S, Name))
     Name = S;
   StringRef R(Name);
   if ((!Name.starts_with(kSPIRVName::Prefix) && !isNonMangledOCLBuiltin(S)) ||
@@ -439,7 +439,7 @@ bool getSPIRVBuiltin(const std::string &OrigName, spv::BuiltIn &B) {
 
 // Demangled name is a substring of the name. The DemangledName is updated only
 // if true is returned
-bool oclIsBuiltin(StringRef Name, StringRef &DemangledName, bool IsCpp) {
+bool glslIsBuiltin(StringRef Name, StringRef &DemangledName, bool IsCpp) {
   if (Name == "printf") {
     DemangledName = Name;
     return true;
@@ -941,7 +941,7 @@ CallInst *mutateCallInst(
     CI->setName(InstName + ".old");
   }
   auto *NewCI = addCallInst(M, NewName, CI->getType(), Args, Attrs, CI, Mangle,
-                           InstName, TakeFuncName);
+                            InstName, TakeFuncName);
   NewCI->setDebugLoc(CI->getDebugLoc());
   LLVM_DEBUG(dbgs() << " => " << *NewCI << '\n');
   CI->replaceAllUsesWith(NewCI);
@@ -961,8 +961,8 @@ Instruction *mutateCallInst(
   Type *RetTy = CI->getType();
   auto NewName = ArgMutate(CI, Args, RetTy);
   StringRef InstName = CI->getName();
-  auto *NewCI = addCallInst(M, NewName, RetTy, Args, Attrs, CI, Mangle, InstName,
-                           TakeFuncName);
+  auto *NewCI = addCallInst(M, NewName, RetTy, Args, Attrs, CI, Mangle,
+                            InstName, TakeFuncName);
   auto *NewI = RetMutate(NewCI);
   NewI->takeName(CI);
   NewI->setDebugLoc(CI->getDebugLoc());
@@ -1007,7 +1007,7 @@ CallInst *addCallInst(Module *M, StringRef FuncName, Type *RetTy,
                       StringRef InstName, bool TakeFuncName) {
 
   auto *F = getOrCreateFunction(M, RetTy, getTypes(Args), FuncName, Mangle,
-                               Attrs, TakeFuncName);
+                                Attrs, TakeFuncName);
   // Cannot assign a Name to void typed values
   auto *CI = CallInst::Create(F, Args, RetTy->isVoidTy() ? "" : InstName, Pos);
   CI->setCallingConv(F->getCallingConv());
@@ -1788,9 +1788,9 @@ bool hasLoopMetadata(const Module *M) {
   return false;
 }
 
-bool isSPIRVOCLExtInst(const CallInst *CI, OCLExtOpKind *ExtOp) {
+bool isSPIRVGLSLExtInst(const CallInst *CI, GLSLExtOpKind *ExtOp) {
   StringRef DemangledName;
-  if (!oclIsBuiltin(CI->getCalledFunction()->getName(), DemangledName))
+  if (!glslIsBuiltin(CI->getCalledFunction()->getName(), DemangledName))
     return false;
   StringRef S = DemangledName;
   if (!S.starts_with(kSPIRVName::Prefix))
@@ -1802,14 +1802,14 @@ bool isSPIRVOCLExtInst(const CallInst *CI, OCLExtOpKind *ExtOp) {
   if (!SPIRVExtSetShortNameMap::rfind(ExtSetName.str(), &Set))
     return false;
 
-  if (Set != SPIRVEIS_OpenCL)
+  if (Set != SPIRVEIS_GLSL_450)
     return false;
 
   auto ExtOpName = S.substr(Loc + 1);
   auto PostFixPos = ExtOpName.find("_R");
   ExtOpName = ExtOpName.substr(0, PostFixPos);
 
-  OCLExtOpKind EOC;
+  GLSLExtOpKind EOC;
   if (!OCLExtOpMap::rfind(ExtOpName.str(), &EOC))
     return false;
 
@@ -1879,8 +1879,8 @@ bool checkTypeForSPIRVExtendedInstLowering(IntrinsicInst *II, SPIRVModule *BM) {
     if ((!Ty->isFloatTy() && !Ty->isDoubleTy() && !Ty->isHalfTy()) ||
         (!BM->hasCapability(CapabilityVectorAnyINTEL) &&
          ((NumElems > 4) && (NumElems != 8) && (NumElems != 16)))) {
-      BM->SPIRVCK(
-          false, InvalidFunctionCall, II->getCalledOperand()->getName().str());
+      BM->SPIRVCK(false, InvalidFunctionCall,
+                  II->getCalledOperand()->getName().str());
       return false;
     }
     break;
@@ -1895,8 +1895,8 @@ bool checkTypeForSPIRVExtendedInstLowering(IntrinsicInst *II, SPIRVModule *BM) {
     if ((!Ty->isIntegerTy()) ||
         (!BM->hasCapability(CapabilityVectorAnyINTEL) &&
          ((NumElems > 4) && (NumElems != 8) && (NumElems != 16)))) {
-      BM->SPIRVCK(
-          false, InvalidFunctionCall, II->getCalledOperand()->getName().str());
+      BM->SPIRVCK(false, InvalidFunctionCall,
+                  II->getCalledOperand()->getName().str());
     }
     break;
   }
@@ -2126,7 +2126,7 @@ bool lowerBuiltinCallsToVariables(Module *M) {
     if (!F.isDeclaration())
       continue;
     StringRef DemangledName;
-    if (!oclIsBuiltin(F.getName(), DemangledName))
+    if (!glslIsBuiltin(F.getName(), DemangledName))
       continue;
     LLVM_DEBUG(dbgs() << "Function demangled name: " << DemangledName << '\n');
     SmallVector<StringRef, 2> Postfix;
@@ -2271,7 +2271,7 @@ bool postProcessBuiltinsReturningStruct(Module *M, bool IsCpp) {
     if (F.hasName() && F.isDeclaration()) {
       LLVM_DEBUG(dbgs() << "[postProcess sret] " << F << '\n');
       if (F.getReturnType()->isStructTy() &&
-          oclIsBuiltin(F.getName(), DemangledName, IsCpp)) {
+          glslIsBuiltin(F.getName(), DemangledName, IsCpp)) {
         if (!postProcessBuiltinReturningStruct(&F))
           return false;
       }
@@ -2287,7 +2287,7 @@ bool postProcessBuiltinsWithArrayArguments(Module *M, bool IsCpp) {
   for (auto &F : make_early_inc_range(M->functions())) {
     if (F.hasName() && F.isDeclaration()) {
       LLVM_DEBUG(dbgs() << "[postProcess array arg] " << F << '\n');
-      if (hasArrayArg(&F) && oclIsBuiltin(F.getName(), DemangledName, IsCpp))
+      if (hasArrayArg(&F) && glslIsBuiltin(F.getName(), DemangledName, IsCpp))
         if (!postProcessBuiltinWithArrayArguments(&F, DemangledName))
           return false;
     }
@@ -2483,7 +2483,7 @@ private:
 };
 class OpenCLStdToSPIRVFriendlyIRMangleInfo : public BuiltinFuncMangleInfo {
 public:
-  OpenCLStdToSPIRVFriendlyIRMangleInfo(OCLExtOpKind ExtOpId,
+  OpenCLStdToSPIRVFriendlyIRMangleInfo(GLSLExtOpKind ExtOpId,
                                        ArrayRef<Type *> ArgTys, Type *RetTy)
       : ExtOpId(ExtOpId), ArgTys(ArgTys) {
 
@@ -2491,43 +2491,23 @@ public:
     if (needRetTypePostfix())
       Postfix = kSPIRVPostfix::Divider + getPostfixForReturnType(RetTy, true);
 
-    UnmangledName = getSPIRVExtFuncName(SPIRVEIS_OpenCL, ExtOpId, Postfix);
+    UnmangledName = getSPIRVExtFuncName(SPIRVEIS_GLSL_450, ExtOpId, Postfix);
   }
 
   bool needRetTypePostfix() {
-    switch (ExtOpId) {
-    case OpenCLLIB::Vload_half:
-    case OpenCLLIB::Vload_halfn:
-    case OpenCLLIB::Vloada_halfn:
-    case OpenCLLIB::Vloadn:
-      return true;
-    default:
-      return false;
-    }
+    // TODO: do not return always false
+    return false;
   }
 
   void init(StringRef) override {
     switch (ExtOpId) {
-    case OpenCLLIB::UAbs:
-    case OpenCLLIB::UAbs_diff:
-    case OpenCLLIB::UAdd_sat:
-    case OpenCLLIB::UHadd:
-    case OpenCLLIB::URhadd:
-    case OpenCLLIB::UClamp:
-    case OpenCLLIB::UMad_hi:
-    case OpenCLLIB::UMad_sat:
-    case OpenCLLIB::UMax:
-    case OpenCLLIB::UMin:
-    case OpenCLLIB::UMul_hi:
-    case OpenCLLIB::USub_sat:
-    case OpenCLLIB::U_Upsample:
-    case OpenCLLIB::UMad24:
-    case OpenCLLIB::UMul24:
+    case GLSLstd450::UAbs:
+    case GLSLstd450::UHadd:
+    case GLSLstd450::UClamp:
+    case GLSLstd450::UMax:
+    case GLSLstd450::UMin:
       // Treat all arguments as unsigned
       addUnsignedArg(-1);
-      break;
-    case OpenCLLIB::S_Upsample:
-      addUnsignedArg(1);
       break;
     default:;
       // No special handling is needed
@@ -2535,13 +2515,13 @@ public:
   }
 
 private:
-  OCLExtOpKind ExtOpId;
+  GLSLExtOpKind ExtOpId;
   ArrayRef<Type *> ArgTys;
 };
 } // namespace
 
 namespace SPIRV {
-std::string getSPIRVFriendlyIRFunctionName(OCLExtOpKind ExtOpId,
+std::string getSPIRVFriendlyIRFunctionName(GLSLExtOpKind ExtOpId,
                                            ArrayRef<Type *> ArgTys,
                                            Type *RetTy) {
   OpenCLStdToSPIRVFriendlyIRMangleInfo MangleInfo(ExtOpId, ArgTys, RetTy);

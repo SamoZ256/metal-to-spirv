@@ -200,7 +200,7 @@ void OCLToSPIRVBase::visitCallInst(CallInst &CI) {
 
   auto MangledName = F->getName();
   StringRef DemangledName;
-  if (!oclIsBuiltin(MangledName, DemangledName))
+  if (!glslIsBuiltin(MangledName, DemangledName))
     return;
 
   LLVM_DEBUG(dbgs() << "DemangledName: " << DemangledName << '\n');
@@ -906,7 +906,7 @@ void OCLToSPIRVBase::transBuiltin(CallInst *CI, OCLBuiltinTransInfo &Info) {
       Info.UniqName = getSPIRVFuncName(OC);
     }
   } else if ((ExtOp = getExtOp(Info.MangledName, Info.UniqName)) != ~0U)
-    Info.UniqName = getSPIRVExtFuncName(SPIRVEIS_OpenCL, ExtOp);
+    Info.UniqName = getSPIRVExtFuncName(SPIRVEIS_GLSL_450, ExtOp);
   else if (SPIRSPIRVBuiltinVariableMap::find(Info.UniqName, &BVKind)) {
     // Map OCL work item builtins to SPV-IR work item builtins.
     // e.g. get_global_id() --> __spirv_BuiltinGlobalInvocationId()
@@ -1347,7 +1347,7 @@ void OCLToSPIRVBase::visitCallScalToVec(CallInst *CI, StringRef MangledName,
   Type *VecTy = CI->getOperand(VecPos[0])->getType();
   auto VecElemCount = cast<VectorType>(VecTy)->getElementCount();
   auto Mutator = mutateCallInst(
-      CI, getSPIRVExtFuncName(SPIRVEIS_OpenCL,
+      CI, getSPIRVExtFuncName(SPIRVEIS_GLSL_450,
                               getExtOp(MangledName, DemangledName)));
   for (auto I : ScalarPos)
     Mutator.mapArg(I, [&](Value *V) {

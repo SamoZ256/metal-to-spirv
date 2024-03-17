@@ -979,7 +979,7 @@ enum {
 // to determine with which compile unit the particular instruction relates
 inline bool hasDbgInstParentScopeIdx(
     const uint32_t Kind, uint32_t &ParentScopeIdx,
-    const SPIRV::SPIRVExtInstSetKind ExtKind = SPIRV::SPIRVEIS_OpenCL) {
+    const SPIRV::SPIRVExtInstSetKind ExtKind = SPIRV::SPIRVEIS_GLSL_450) {
   switch (Kind) {
   case SPIRVDebug::Typedef:
     ParentScopeIdx = Typedef::ParentIdx;
@@ -1021,10 +1021,7 @@ inline bool hasDbgInstParentScopeIdx(
     ParentScopeIdx = LocalVariable::ParentIdx;
     return true;
   case SPIRVDebug::ImportedEntity:
-    if (ExtKind == SPIRV::SPIRVEIS_OpenCL_DebugInfo_100)
-      ParentScopeIdx = ImportedEntity::OpenCL::ParentIdx;
-    else
-      ParentScopeIdx = ImportedEntity::NonSemantic::ParentIdx;
+    ParentScopeIdx = ImportedEntity::NonSemantic::ParentIdx;
     return true;
   case SPIRVDebug::ModuleINTEL:
     ParentScopeIdx = ModuleINTEL::ParentIdx;

@@ -55,6 +55,7 @@
 #include "SPIRVType.h"
 #include "SPIRVTypeScavenger.h"
 #include "SPIRVValue.h"
+#include "libSPIRV/SPIRVEnum.h"
 
 #include "llvm/ADT/SmallSet.h"
 #include "llvm/ADT/StringMap.h"
@@ -73,6 +74,11 @@ class LLVMToSPIRVBase : protected BuiltinCallHelper {
 public:
   LLVMToSPIRVBase(SPIRVModule *SMod);
   bool runLLVMToSPIRV(Module &Mod);
+
+  // Create entry point functions which call to original entry points by reading
+  // the module metadata
+  bool createEntryPoint(MDNode *MD, SPIRVExecutionModelKind EM);
+  bool createEntryPoints();
 
   // This enum sets the mode used to translate the value which is
   // a function, that is necessary for a convenient function pointers handling.

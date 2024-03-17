@@ -45,7 +45,6 @@
 #include "SPIRVLowerMemmove.h"
 #include "SPIRVLowerOCLBlocks.h"
 #include "SPIRVRegularizeLLVM.h"
-#include "SPIRVToOCL.h"
 #include "SPIRVWriter.h"
 
 #include "llvm/Passes/PassBuilder.h"
@@ -112,14 +111,6 @@ PassPluginLibraryInfo getSPIRVPluginInfo() {
               }
               if (Name.equals("spirv-regularize-llvm")) {
                 PM.addPass(SPIRVRegularizeLLVMPass());
-                return true;
-              }
-              if (Name.equals("spirv-to-ocl12")) {
-                PM.addPass(SPIRVToOCL12Pass());
-                return true;
-              }
-              if (Name.equals("spirv-to-ocl20")) {
-                PM.addPass(SPIRVToOCL20Pass());
                 return true;
               }
               return false;

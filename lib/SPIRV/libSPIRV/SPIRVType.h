@@ -251,14 +251,15 @@ public:
     return static_cast<SPIRVType *>(getEntry(ElemTypeId));
   }
   SPIRVStorageClassKind getStorageClass() const { return ElemStorageClass; }
-  SPIRVCapVec getRequiredCapability() const override {
-    auto Cap = getVec(CapabilityAddresses);
-    if (getElementType()->isTypeFloat(16))
-      Cap.push_back(CapabilityFloat16Buffer);
-    auto C = getCapability(ElemStorageClass);
-    Cap.insert(Cap.end(), C.begin(), C.end());
-    return Cap;
-  }
+  // TODO: override?
+  // SPIRVCapVec getRequiredCapability() const override {
+  //  auto Cap = getVec(CapabilityAddresses);
+  //  if (getElementType()->isTypeFloat(16))
+  //    Cap.push_back(CapabilityFloat16Buffer);
+  //  auto C = getCapability(ElemStorageClass);
+  //  Cap.insert(Cap.end(), C.begin(), C.end());
+  //  return Cap;
+  //}
   std::vector<SPIRVEntry *> getNonLiteralOperands() const override {
     return std::vector<SPIRVEntry *>(1, getEntry(ElemTypeId));
   }
@@ -512,7 +513,6 @@ public:
   }
   SPIRVCapVec getRequiredCapability() const override {
     SPIRVCapVec CV;
-    CV.push_back(CapabilityImageBasic);
     if (Desc.Dim == SPIRVImageDimKind::Dim1D)
       CV.push_back(CapabilitySampled1D);
     else if (Desc.Dim == SPIRVImageDimKind::DimBuffer)
@@ -541,8 +541,6 @@ protected:
     assert(Desc.Depth <= 1);
     assert(Desc.Arrayed <= 1);
     assert(Desc.MS <= 1);
-    assert(Desc.Sampled == 0); // For OCL only
-    assert(Desc.Format == 0);  // For OCL only
     assert(Acc.size() <= 1);
   }
   void setWordCount(SPIRVWord TheWC) override {

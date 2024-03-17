@@ -307,9 +307,9 @@ public:
                                              SPIRVWord Capacity) = 0;
 
   // Instruction creation functions
-  virtual SPIRVInstruction *addPtrAccessChainInst(SPIRVType *, SPIRVValue *,
-                                                  std::vector<SPIRVValue *>,
-                                                  SPIRVBasicBlock *, bool) = 0;
+  virtual SPIRVInstruction *addAccessChainInst(SPIRVType *, SPIRVValue *,
+                                               std::vector<SPIRVValue *>,
+                                               SPIRVBasicBlock *, bool) = 0;
   virtual SPIRVInstruction *
   addAsyncGroupCopy(SPIRVValue *Scope, SPIRVValue *Dest, SPIRVValue *Src,
                     SPIRVValue *NumElems, SPIRVValue *Stride, SPIRVValue *Event,
@@ -478,12 +478,14 @@ public:
   virtual SPIRVInstruction *addSampledImageInst(SPIRVType *, SPIRVValue *,
                                                 SPIRVValue *,
                                                 SPIRVBasicBlock *) = 0;
-  virtual SPIRVEntry *getOrAddAliasDomainDeclINTELInst(
-      std::vector<SPIRVId> Args, llvm::MDNode *MD) = 0;
-  virtual SPIRVEntry *getOrAddAliasScopeDeclINTELInst(
-      std::vector<SPIRVId> Args, llvm::MDNode *MD) = 0;
-  virtual SPIRVEntry *getOrAddAliasScopeListDeclINTELInst(
-      std::vector<SPIRVId> Args, llvm::MDNode *MD) = 0;
+  virtual SPIRVEntry *
+  getOrAddAliasDomainDeclINTELInst(std::vector<SPIRVId> Args,
+                                   llvm::MDNode *MD) = 0;
+  virtual SPIRVEntry *getOrAddAliasScopeDeclINTELInst(std::vector<SPIRVId> Args,
+                                                      llvm::MDNode *MD) = 0;
+  virtual SPIRVEntry *
+  getOrAddAliasScopeListDeclINTELInst(std::vector<SPIRVId> Args,
+                                      llvm::MDNode *MD) = 0;
   virtual SPIRVInstruction *addAssumeTrueKHRInst(SPIRVValue *Condition,
                                                  SPIRVBasicBlock *BB) = 0;
   virtual SPIRVInstruction *addExpectKHRInst(SPIRVType *ResultTy,
@@ -559,8 +561,6 @@ public:
     switch (TranslationOpts.getDebugInfoEIS()) {
     case DebugInfoEIS::SPIRV_Debug:
       return SPIRVEIS_Debug;
-    case DebugInfoEIS::OpenCL_DebugInfo_100:
-      return SPIRVEIS_OpenCL_DebugInfo_100;
     case DebugInfoEIS::NonSemantic_Shader_DebugInfo_100:
       return SPIRVEIS_NonSemantic_Shader_DebugInfo_100;
     case DebugInfoEIS::NonSemantic_Shader_DebugInfo_200:
@@ -590,7 +590,6 @@ protected:
 private:
   bool IsValid;
 };
-
 
 #ifdef _SPIRV_SUPPORT_TEXT_FMT
 

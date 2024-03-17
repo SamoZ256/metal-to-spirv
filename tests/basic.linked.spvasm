@@ -1,0 +1,134 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Linker; 0
+; Bound: 104
+; Schema: 0
+               OpCapability Matrix
+               OpCapability Shader
+               OpCapability Int8
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %2 "vertexMain" %7 %6 %4 %3
+               OpEntryPoint Fragment %8 "fragmentMain" %13 %10 %9
+               OpExecutionMode %8 OriginUpperLeft
+               OpSource Unknown 0
+               OpSource Unknown 0
+               OpName %struct_Model "struct.Model"
+               OpName %vertexMain "vertexMain"
+               OpName %fragmentMain "fragmentMain"
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+ %_struct_23 = OpTypeStruct %v4float %uchar
+         %24 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %25 = OpTypeSampler
+    %v2float = OpTypeVector %float 2
+       %bool = OpTypeBool
+     %v2uint = OpTypeVector %uint 2
+         %29 = OpTypeFunction %_struct_23 %24 %25 %v2float %bool %v2uint %bool %float %float %uint
+ %_struct_30 = OpTypeStruct %v4float %v2float
+%struct_Model = OpTypeStruct %v2float %v2float
+%_ptr_Function_struct_Model = OpTypePointer Function %struct_Model
+         %32 = OpTypeFunction %_struct_30 %v2float %v2float %_ptr_Function_struct_Model
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+         %34 = OpTypeFunction %v4float %v4float %v2float %24 %25
+       %void = OpTypeVoid
+         %36 = OpTypeFunction %void
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_v2float = OpTypePointer Output %v2float
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%_ptr_UniformConstant_struct_Model = OpTypePointer UniformConstant %struct_Model
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Uniform_24 = OpTypePointer Uniform %24
+%_ptr_UniformConstant_25 = OpTypePointer UniformConstant %25
+         %44 = OpUndef %v2float
+         %45 = OpUndef %float
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %48 = OpConstantComposite %v4float %45 %45 %float_0 %float_1
+         %49 = OpUndef %_struct_30
+       %true = OpConstantTrue %bool
+         %51 = OpConstantNull %v2uint
+      %false = OpConstantFalse %bool
+          %6 = OpVariable %_ptr_Output_v4float Output
+          %7 = OpVariable %_ptr_Output_v2float Output
+          %3 = OpVariable %_ptr_Input_v2float Input
+          %4 = OpVariable %_ptr_Input_v2float Input
+         %53 = OpVariable %_ptr_UniformConstant_struct_Model UniformConstant
+         %13 = OpVariable %_ptr_Output_v4float Output
+          %9 = OpVariable %_ptr_Input_v4float Input
+         %10 = OpVariable %_ptr_Input_v2float Input
+         %11 = OpVariable %_ptr_Uniform_24 Uniform
+         %12 = OpVariable %_ptr_UniformConstant_25 UniformConstant
+         %54 = OpTypeSampledImage %24
+    %uchar_0 = OpConstant %uchar 0
+ %vertexMain = OpFunction %_struct_30 None %32
+         %56 = OpFunctionParameter %v2float
+         %57 = OpFunctionParameter %v2float
+         %58 = OpFunctionParameter %_ptr_Function_struct_Model
+         %59 = OpLabel
+         %60 = OpInBoundsAccessChain %_ptr_Function_v2float %58 %uint_0
+         %61 = OpLoad %v2float %60
+         %62 = OpInBoundsAccessChain %_ptr_Function_v2float %58 %uint_1
+         %63 = OpLoad %v2float %62
+         %64 = OpFMul %v2float %63 %56
+         %65 = OpFAdd %v2float %64 %61
+         %66 = OpVectorShuffle %v4float %65 %44 0 1 4294967295 4294967295
+         %67 = OpVectorShuffle %v4float %66 %48 0 1 6 7
+         %68 = OpCompositeInsert %_struct_30 %67 %49 0
+         %69 = OpCompositeInsert %_struct_30 %57 %68 1
+               OpReturnValue %69
+               OpFunctionEnd
+%fragmentMain = OpFunction %v4float None %34
+         %70 = OpFunctionParameter %v4float
+         %71 = OpFunctionParameter %v2float
+         %72 = OpFunctionParameter %24
+         %73 = OpFunctionParameter %25
+         %74 = OpLabel
+         %75 = OpFunctionCall %_struct_23 %76 %72 %73 %71 %true %51 %false %float_0 %float_0 %uint_0
+         %77 = OpCompositeExtract %v4float %75 0
+               OpReturnValue %77
+               OpFunctionEnd
+          %2 = OpFunction %void None %36
+         %78 = OpLabel
+          %5 = OpVariable %_ptr_Function_struct_Model Function
+         %79 = OpLoad %v2float %3
+         %80 = OpLoad %v2float %4
+         %81 = OpLoad %struct_Model %53
+               OpStore %5 %81
+         %82 = OpFunctionCall %_struct_30 %vertexMain %79 %80 %5
+         %83 = OpCompositeExtract %v4float %82 0
+               OpStore %6 %83
+         %84 = OpCompositeExtract %v2float %82 1
+               OpStore %7 %84
+               OpReturn
+               OpFunctionEnd
+          %8 = OpFunction %void None %36
+         %85 = OpLabel
+         %86 = OpLoad %v4float %9
+         %87 = OpLoad %v2float %10
+         %88 = OpLoad %24 %11
+         %89 = OpLoad %25 %12
+         %90 = OpFunctionCall %v4float %fragmentMain %86 %87 %88 %89
+               OpStore %13 %90
+               OpReturn
+               OpFunctionEnd
+         %76 = OpFunction %_struct_23 None %29
+         %91 = OpFunctionParameter %24
+         %92 = OpFunctionParameter %25
+         %93 = OpFunctionParameter %v2float
+         %94 = OpFunctionParameter %bool
+         %95 = OpFunctionParameter %v2uint
+         %96 = OpFunctionParameter %bool
+         %97 = OpFunctionParameter %float
+         %98 = OpFunctionParameter %float
+         %99 = OpFunctionParameter %uint
+        %100 = OpLabel
+        %101 = OpSampledImage %54 %91 %92
+        %102 = OpImageSampleExplicitLod %v4float %101 %93 Lod %97
+        %103 = OpCompositeConstruct %_struct_23 %102 %uchar_0
+               OpReturnValue %103
+               OpFunctionEnd

@@ -70,7 +70,6 @@ public:
   template <typename T = MDNode>
   T *transDebugInst(const SPIRVExtInst *DebugInst) {
     assert((DebugInst->getExtSetKind() == SPIRVEIS_Debug ||
-            DebugInst->getExtSetKind() == SPIRVEIS_OpenCL_DebugInfo_100 ||
             DebugInst->getExtSetKind() ==
                 SPIRVEIS_NonSemantic_Shader_DebugInfo_100 ||
             DebugInst->getExtSetKind() ==

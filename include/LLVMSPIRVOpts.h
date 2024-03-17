@@ -107,7 +107,6 @@ enum class FPContractMode : uint32_t { On, Off, Fast };
 
 enum class DebugInfoEIS : uint32_t {
   SPIRV_Debug,
-  OpenCL_DebugInfo_100,
   NonSemantic_Shader_DebugInfo_100,
   NonSemantic_Shader_DebugInfo_200
 };
@@ -272,7 +271,7 @@ private:
   // DebugInfo specification.
   bool AllowExtraDIExpressions = false;
 
-  DebugInfoEIS DebugInfoVersion = DebugInfoEIS::OpenCL_DebugInfo_100;
+  DebugInfoEIS DebugInfoVersion = DebugInfoEIS::SPIRV_Debug;
 
   // Controls whether llvm.fmuladd.* should be replaced with mad from OpenCL
   // extended instruction set or with a simple fmul + fadd

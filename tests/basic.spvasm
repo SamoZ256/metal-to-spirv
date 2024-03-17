@@ -1,0 +1,143 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 110
+; Schema: 0
+               OpCapability Matrix
+               OpCapability Shader
+               OpCapability Linkage
+               OpCapability Int8
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %70 "vertexMain" %77 %79 %82 %73 %75
+               OpEntryPoint Fragment %93 "fragmentMain" %98 %100 %102 %104 %96
+               OpExecutionMode %93 OriginUpperLeft
+               OpSource Unknown 0
+               OpName %air_sample_texture_2d_v4f32 "air.sample_texture_2d.v4f32"
+               OpName %struct_Model "struct.Model"
+               OpName %vertexMain "vertexMain"
+               OpName %fragmentMain "fragmentMain"
+               OpDecorate %air_sample_texture_2d_v4f32 LinkageAttributes "air.sample_texture_2d.v4f32" Import
+               OpDecorate %vertexMain LinkageAttributes "vertexMain" Export
+               OpDecorate %fragmentMain LinkageAttributes "fragmentMain" Export
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+  %_struct_2 = OpTypeStruct %v4float %uchar
+          %6 = OpTypeImage %float 2D 0 0 0 1 Unknown
+          %7 = OpTypeSampler
+    %v2float = OpTypeVector %float 2
+       %bool = OpTypeBool
+     %v2uint = OpTypeVector %uint 2
+         %12 = OpTypeFunction %_struct_2 %6 %7 %v2float %bool %v2uint %bool %float %float %uint
+ %_struct_23 = OpTypeStruct %v4float %v2float
+%struct_Model = OpTypeStruct %v2float %v2float
+%_ptr_Function_struct_Model = OpTypePointer Function %struct_Model
+         %26 = OpTypeFunction %_struct_23 %v2float %v2float %_ptr_Function_struct_Model
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+%_ptr_Function_v2float_0 = OpTypePointer Function %v2float
+         %52 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %53 = OpTypeSampler
+         %54 = OpTypeFunction %v4float %v4float %v2float %52 %53
+%_ptr_Function_struct_Model_0 = OpTypePointer Function %struct_Model
+         %67 = OpTypeFunction %_struct_23 %v2float %v2float %_ptr_Function_struct_Model_0
+       %void = OpTypeVoid
+         %69 = OpTypeFunction %void
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_v2float = OpTypePointer Output %v2float
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%_ptr_Input_v2float_0 = OpTypePointer Input %v2float
+%_ptr_UniformConstant_struct_Model = OpTypePointer UniformConstant %struct_Model
+         %89 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %90 = OpTypeSampler
+         %91 = OpTypeFunction %v4float %v4float %v2float %89 %90
+         %92 = OpTypeFunction %void
+%_ptr_Output_v4float_0 = OpTypePointer Output %v4float
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Input_v2float_1 = OpTypePointer Input %v2float
+%_ptr_Uniform_89 = OpTypePointer Uniform %89
+%_ptr_UniformConstant_90 = OpTypePointer UniformConstant %90
+         %42 = OpUndef %v2float
+         %44 = OpUndef %float
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %47 = OpConstantComposite %v4float %44 %44 %float_0 %float_1
+         %49 = OpUndef %_struct_23
+       %true = OpConstantTrue %bool
+         %62 = OpConstantNull %v2uint
+      %false = OpConstantFalse %bool
+         %73 = OpVariable %_ptr_Output_v4float Output
+         %75 = OpVariable %_ptr_Output_v2float Output
+         %77 = OpVariable %_ptr_Input_v2float Input
+         %79 = OpVariable %_ptr_Input_v2float_0 Input
+         %81 = OpVariable %_ptr_UniformConstant_struct_Model UniformConstant
+         %96 = OpVariable %_ptr_Output_v4float_0 Output
+         %98 = OpVariable %_ptr_Input_v4float Input
+        %100 = OpVariable %_ptr_Input_v2float_1 Input
+        %102 = OpVariable %_ptr_Uniform_89 Uniform
+        %104 = OpVariable %_ptr_UniformConstant_90 UniformConstant
+%air_sample_texture_2d_v4f32 = OpFunction %_struct_2 None %12
+         %14 = OpFunctionParameter %6
+         %15 = OpFunctionParameter %7
+         %16 = OpFunctionParameter %v2float
+         %17 = OpFunctionParameter %bool
+         %18 = OpFunctionParameter %v2uint
+         %19 = OpFunctionParameter %bool
+         %20 = OpFunctionParameter %float
+         %21 = OpFunctionParameter %float
+         %22 = OpFunctionParameter %uint
+               OpFunctionEnd
+ %vertexMain = OpFunction %_struct_23 None %26
+         %28 = OpFunctionParameter %v2float
+         %29 = OpFunctionParameter %v2float
+         %30 = OpFunctionParameter %_ptr_Function_struct_Model
+         %31 = OpLabel
+         %34 = OpInBoundsAccessChain %_ptr_Function_v2float %30 %uint_0
+         %35 = OpLoad %v2float %34
+         %38 = OpInBoundsAccessChain %_ptr_Function_v2float_0 %30 %uint_1
+         %39 = OpLoad %v2float %38
+         %40 = OpFMul %v2float %39 %28
+         %41 = OpFAdd %v2float %40 %35
+         %43 = OpVectorShuffle %v4float %41 %42 0 1 4294967295 4294967295
+         %48 = OpVectorShuffle %v4float %43 %47 0 1 6 7
+         %50 = OpCompositeInsert %_struct_23 %48 %49 0
+         %51 = OpCompositeInsert %_struct_23 %29 %50 1
+               OpReturnValue %51
+               OpFunctionEnd
+%fragmentMain = OpFunction %v4float None %54
+         %56 = OpFunctionParameter %v4float
+         %57 = OpFunctionParameter %v2float
+         %58 = OpFunctionParameter %52
+         %59 = OpFunctionParameter %53
+         %60 = OpLabel
+         %64 = OpFunctionCall %_struct_2 %air_sample_texture_2d_v4f32 %58 %59 %57 %true %62 %false %float_0 %float_0 %uint_0
+         %65 = OpCompositeExtract %v4float %64 0
+               OpReturnValue %65
+               OpFunctionEnd
+         %70 = OpFunction %void None %69
+         %71 = OpLabel
+         %82 = OpVariable %_ptr_Function_struct_Model_0 Function
+         %83 = OpLoad %v2float %77
+         %84 = OpLoad %v2float %79
+         %85 = OpLoad %struct_Model %81
+               OpStore %82 %85
+         %86 = OpFunctionCall %_struct_23 %vertexMain %83 %84 %82
+         %87 = OpCompositeExtract %v4float %86 0
+               OpStore %73 %87
+         %88 = OpCompositeExtract %v2float %86 1
+               OpStore %75 %88
+               OpReturn
+               OpFunctionEnd
+         %93 = OpFunction %void None %92
+         %94 = OpLabel
+        %105 = OpLoad %v4float %98
+        %106 = OpLoad %v2float %100
+        %107 = OpLoad %89 %102
+        %108 = OpLoad %90 %104
+        %109 = OpFunctionCall %v4float %fragmentMain %105 %106 %107 %108
+               OpStore %96 %109
+               OpReturn
+               OpFunctionEnd

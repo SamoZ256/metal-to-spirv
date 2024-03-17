@@ -19,9 +19,6 @@ set(SRC_LIST
   SPIRVReader.cpp
   SPIRVRegularizeLLVM.cpp
   SPIRVToLLVMDbgTran.cpp
-  SPIRVToOCL.cpp
-  SPIRVToOCL12.cpp
-  SPIRVToOCL20.cpp
   SPIRVTypeScavenger.cpp
   SPIRVUtil.cpp
   SPIRVWriter.cpp

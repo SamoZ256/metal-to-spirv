@@ -75,9 +75,8 @@ enum SPIRVInstructionSchemaKind {
 };
 
 enum SPIRVExtInstSetKind {
-  SPIRVEIS_OpenCL,
+  SPIRVEIS_GLSL_450,
   SPIRVEIS_Debug,
-  SPIRVEIS_OpenCL_DebugInfo_100,
   SPIRVEIS_NonSemantic_Shader_DebugInfo_100,
   SPIRVEIS_NonSemantic_Shader_DebugInfo_200,
   SPIRVEIS_NonSemantic_AuxData,
@@ -129,9 +128,8 @@ template <> inline void SPIRVMap<ExtensionID, std::string>::init() {
 }
 
 template <> inline void SPIRVMap<SPIRVExtInstSetKind, std::string>::init() {
-  add(SPIRVEIS_OpenCL, "OpenCL.std");
+  add(SPIRVEIS_GLSL_450, "GLSL.std.450");
   add(SPIRVEIS_Debug, "SPIRV.debug");
-  add(SPIRVEIS_OpenCL_DebugInfo_100, "OpenCL.DebugInfo.100");
   add(SPIRVEIS_NonSemantic_Shader_DebugInfo_100,
       "NonSemantic.Shader.DebugInfo.100");
   add(SPIRVEIS_NonSemantic_Shader_DebugInfo_200,
@@ -183,7 +181,6 @@ template <> inline void SPIRVMap<SPIRVCapabilityKind, SPIRVCapVec>::init() {
   ADD_VEC_INIT(CapabilityImageRect, {CapabilitySampledRect});
   ADD_VEC_INIT(CapabilitySampledRect, {CapabilityShader});
   ADD_VEC_INIT(CapabilityGenericPointer, {CapabilityAddresses});
-  ADD_VEC_INIT(CapabilityInt8, {CapabilityKernel});
   ADD_VEC_INIT(CapabilityInputAttachment, {CapabilityShader});
   ADD_VEC_INIT(CapabilitySparseResidency, {CapabilityShader});
   ADD_VEC_INIT(CapabilityMinLod, {CapabilityShader});

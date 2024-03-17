@@ -85,8 +85,9 @@ public:
         SrcLangVer(102000), BoolTy(nullptr), VoidTy(nullptr) {
     AddrModel = sizeof(size_t) == 32 ? AddressingModelPhysical32
                                      : AddressingModelPhysical64;
-    // OpenCL memory model requires Kernel capability
-    setMemoryModel(MemoryModelOpenCL);
+
+    // GLSL450 memory model requires Shader capability
+    setMemoryModel(MemoryModelGLSL450);
   }
 
   SPIRVModuleImpl(const SPIRV::TranslatorOpts &Opts) : SPIRVModuleImpl() {
@@ -171,8 +172,8 @@ public:
   void setAlignment(SPIRVValue *, SPIRVWord) override;
   void setMemoryModel(SPIRVMemoryModelKind MM) override {
     MemoryModel = MM;
-    if (MemoryModel == spv::MemoryModelOpenCL)
-      addCapability(CapabilityKernel);
+    if (MemoryModel == spv::MemoryModelGLSL450)
+      addCapability(CapabilityShader);
   }
   void setName(SPIRVEntry *E, const std::string &Name) override;
   void setSourceLanguage(SourceLanguage Lang, SPIRVWord Ver) override {
@@ -313,9 +314,9 @@ public:
                                      SPIRVWord Capacity) override;
 
   // Instruction creation functions
-  SPIRVInstruction *addPtrAccessChainInst(SPIRVType *, SPIRVValue *,
-                                          std::vector<SPIRVValue *>,
-                                          SPIRVBasicBlock *, bool) override;
+  SPIRVInstruction *addAccessChainInst(SPIRVType *, SPIRVValue *,
+                                       std::vector<SPIRVValue *>,
+                                       SPIRVBasicBlock *, bool) override;
   SPIRVInstruction *addAsyncGroupCopy(SPIRVValue *Scope, SPIRVValue *Dest,
                                       SPIRVValue *Src, SPIRVValue *NumElems,
                                       SPIRVValue *Stride, SPIRVValue *Event,
@@ -758,7 +759,6 @@ void SPIRVModuleImpl::layoutEntry(SPIRVEntry *E) {
   case OpExtInst: {
     SPIRVExtInst *EI = static_cast<SPIRVExtInst *>(E);
     if ((EI->getExtSetKind() == SPIRVEIS_Debug ||
-         EI->getExtSetKind() == SPIRVEIS_OpenCL_DebugInfo_100 ||
          EI->getExtSetKind() == SPIRVEIS_NonSemantic_Shader_DebugInfo_100 ||
          EI->getExtSetKind() == SPIRVEIS_NonSemantic_Shader_DebugInfo_200) &&
         EI->getExtOp() != SPIRVDebug::Declare &&
@@ -1442,10 +1442,11 @@ SPIRVInstruction *SPIRVModuleImpl::addExtInst(
       InsertBefore);
 }
 
+// TODO: check this
 SPIRVEntry *
 SPIRVModuleImpl::createDebugInfo(SPIRVWord InstId, SPIRVType *TheType,
                                  const std::vector<SPIRVWord> &Args) {
-  return new SPIRVExtInst(this, getId(), TheType, SPIRVEIS_OpenCL_DebugInfo_100,
+  return new SPIRVExtInst(this, getId(), TheType, SPIRVEIS_Debug,
                           ExtInstSetIds[getDebugInfoEIS()], InstId, Args);
 }
 
@@ -1683,13 +1684,13 @@ SPIRVInstruction *SPIRVModuleImpl::addArbFloatPointIntelInst(
 }
 
 SPIRVInstruction *
-SPIRVModuleImpl::addPtrAccessChainInst(SPIRVType *Type, SPIRVValue *Base,
-                                       std::vector<SPIRVValue *> Indices,
-                                       SPIRVBasicBlock *BB, bool IsInBounds) {
+SPIRVModuleImpl::addAccessChainInst(SPIRVType *Type, SPIRVValue *Base,
+                                    std::vector<SPIRVValue *> Indices,
+                                    SPIRVBasicBlock *BB, bool IsInBounds) {
   return addInstruction(
       SPIRVInstTemplateBase::create(
-          IsInBounds ? OpInBoundsPtrAccessChain : OpPtrAccessChain, Type,
-          getId(), getVec(Base->getId(), Base->getIds(Indices)), BB, this),
+          IsInBounds ? OpInBoundsAccessChain : OpAccessChain, Type, getId(),
+          getVec(Base->getId(), Base->getIds(Indices)), BB, this),
       BB);
 }
 

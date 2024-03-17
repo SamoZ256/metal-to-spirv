@@ -1,0 +1,44 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 1024
+; Schema: 0
+               OpCapability Shader
+               OpCapability Linkage
+               OpCapability Int8
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpSource Unknown 0
+               OpDecorate %air_sample_texture_2d_v4f32 LinkageAttributes "air.sample_texture_2d.v4f32" Export
+               ; Types
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+  %_struct_2 = OpTypeStruct %v4float %uchar
+    %v2float = OpTypeVector %float 2
+       %bool = OpTypeBool
+     %v2uint = OpTypeVector %uint 2
+      %Image = OpTypeImage %float 2D 0 0 0 1 Unknown
+    %Sampler = OpTypeSampler
+%SampledImage = OpTypeSampledImage %Image
+%Type_air_sample_texture_2d_v4f32 = OpTypeFunction %_struct_2 %Image %Sampler %v2float %bool %v2uint %bool %float %float %uint
+               ; Constants
+%sample_constant = OpConstant %uchar 0
+
+%air_sample_texture_2d_v4f32 = OpFunction %_struct_2 None %Type_air_sample_texture_2d_v4f32
+      %image = OpFunctionParameter %Image
+    %sampler = OpFunctionParameter %Sampler
+     %coords = OpFunctionParameter %v2float
+         %15 = OpFunctionParameter %bool
+    %uoffset = OpFunctionParameter %v2uint
+         %16 = OpFunctionParameter %bool
+         %17 = OpFunctionParameter %float
+         %18 = OpFunctionParameter %float
+         %19 = OpFunctionParameter %uint
+         %20 = OpLabel
+%sampled_image = OpSampledImage %SampledImage %image %sampler
+    %sampled = OpImageSampleExplicitLod %v4float %sampled_image %coords Lod %17 ; TODO: check if the lod is correct
+     %return = OpCompositeConstruct %_struct_2 %sampled %sample_constant ; TODO: check what should be the second parameter
+               OpReturnValue %return
+               OpFunctionEnd

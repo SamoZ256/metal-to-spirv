@@ -327,9 +327,7 @@ public:
     return getOpValue(I);
   }
 
-  virtual SPIRVValue *getOperand(unsigned I) {
-    return getOpValue(I);
-  }
+  virtual SPIRVValue *getOperand(unsigned I) { return getOpValue(I); }
 
   bool hasExecScope() const { return SPIRV::hasExecScope(OpCode); }
 
@@ -415,12 +413,12 @@ public:
     }
     if (MemoryAccess[0] & MemoryAccessAliasScopeINTELMaskMask) {
       assert(MemoryAccess.size() > MemAccessNumParam &&
-          "Aliasing operand is missing");
+             "Aliasing operand is missing");
       AliasScopeInstID = MemoryAccess[MemAccessNumParam++];
     }
     if (MemoryAccess[0] & MemoryAccessNoAliasINTELMaskMask) {
       assert(MemoryAccess.size() > MemAccessNumParam &&
-          "Aliasing operand is missing");
+             "Aliasing operand is missing");
       NoAliasInstID = MemoryAccess[MemAccessNumParam];
     }
   }
@@ -1793,8 +1791,7 @@ public:
   void setExtSetKindById() {
     assert(Module && "Invalid module");
     ExtSetKind = Module->getBuiltinSet(ExtSetId);
-    assert((ExtSetKind == SPIRVEIS_OpenCL || ExtSetKind == SPIRVEIS_Debug ||
-            ExtSetKind == SPIRVEIS_OpenCL_DebugInfo_100 ||
+    assert((ExtSetKind == SPIRVEIS_GLSL_450 || ExtSetKind == SPIRVEIS_Debug ||
             ExtSetKind == SPIRVEIS_NonSemantic_Shader_DebugInfo_100 ||
             ExtSetKind == SPIRVEIS_NonSemantic_Shader_DebugInfo_200 ||
             ExtSetKind == SPIRVEIS_NonSemantic_AuxData) &&
@@ -1803,11 +1800,10 @@ public:
   void encode(spv_ostream &O) const override {
     getEncoder(O) << Type << Id << ExtSetId;
     switch (ExtSetKind) {
-    case SPIRVEIS_OpenCL:
+    case SPIRVEIS_GLSL_450:
       getEncoder(O) << ExtOpOCL;
       break;
     case SPIRVEIS_Debug:
-    case SPIRVEIS_OpenCL_DebugInfo_100:
     case SPIRVEIS_NonSemantic_Shader_DebugInfo_100:
     case SPIRVEIS_NonSemantic_Shader_DebugInfo_200:
       getEncoder(O) << ExtOpDebug;
@@ -1825,11 +1821,10 @@ public:
     getDecoder(I) >> Type >> Id >> ExtSetId;
     setExtSetKindById();
     switch (ExtSetKind) {
-    case SPIRVEIS_OpenCL:
+    case SPIRVEIS_GLSL_450:
       getDecoder(I) >> ExtOpOCL;
       break;
     case SPIRVEIS_Debug:
-    case SPIRVEIS_OpenCL_DebugInfo_100:
     case SPIRVEIS_NonSemantic_Shader_DebugInfo_100:
     case SPIRVEIS_NonSemantic_Shader_DebugInfo_200:
       getDecoder(I) >> ExtOpDebug;
@@ -1858,21 +1853,12 @@ public:
     validateBuiltin(ExtSetId, ExtOp);
   }
   bool isOperandLiteral(unsigned Index) const override {
-    assert(ExtSetKind == SPIRVEIS_OpenCL &&
+    assert(ExtSetKind == SPIRVEIS_GLSL_450 &&
            "Unsupported extended instruction set");
-    auto EOC = static_cast<OCLExtOpKind>(ExtOp);
-    switch (EOC) {
-    default:
-      return false;
-    case OpenCLLIB::Vloadn:
-    case OpenCLLIB::Vload_halfn:
-    case OpenCLLIB::Vloada_halfn:
-      return Index == 2;
-    case OpenCLLIB::Vstore_half_r:
-    case OpenCLLIB::Vstore_halfn_r:
-    case OpenCLLIB::Vstorea_halfn_r:
-      return Index == 3;
-    }
+    // auto EOC = static_cast<GLSLExtOpKind>(ExtOp);
+
+    // TODO: do not always return false?
+    return false;
   }
   std::vector<SPIRVValue *> getArgValues() {
     std::vector<SPIRVValue *> VArgs;
@@ -1903,7 +1889,7 @@ protected:
   SPIRVId ExtSetId;
   union {
     SPIRVWord ExtOp;
-    OCLExtOpKind ExtOpOCL;
+    GLSLExtOpKind ExtOpOCL;
     SPIRVDebugExtOpKind ExtOpDebug;
     NonSemanticAuxDataOpKind ExtOpNonSemanticAuxData;
   };

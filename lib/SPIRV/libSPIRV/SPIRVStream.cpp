@@ -142,7 +142,7 @@ const SPIRVEncoder &operator<<(const SPIRVEncoder &O, SPIRVType *P) {
 SPIRV_DEF_ENCDEC(Op)
 SPIRV_DEF_ENCDEC(Capability)
 SPIRV_DEF_ENCDEC(Decoration)
-SPIRV_DEF_ENCDEC(OCLExtOpKind)
+SPIRV_DEF_ENCDEC(GLSLExtOpKind)
 SPIRV_DEF_ENCDEC(SPIRVDebugExtOpKind)
 SPIRV_DEF_ENCDEC(NonSemanticAuxDataOpKind)
 SPIRV_DEF_ENCDEC(InitializationModeQualifier)

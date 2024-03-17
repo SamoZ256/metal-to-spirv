@@ -61,7 +61,7 @@ using namespace llvm;
 namespace llvm {
 class IntrinsicInst;
 class IRBuilderBase;
-}
+} // namespace llvm
 
 namespace SPIRV {
 
@@ -256,7 +256,7 @@ class SPIRVExtSetShortName;
 template <>
 inline void
 SPIRVMap<SPIRVExtInstSetKind, std::string, SPIRVExtSetShortName>::init() {
-  add(SPIRVEIS_OpenCL, "ocl");
+  add(SPIRVEIS_GLSL_450, "ocl");
 }
 typedef SPIRVMap<SPIRVExtInstSetKind, std::string, SPIRVExtSetShortName>
     SPIRVExtSetShortNameMap;
@@ -643,7 +643,8 @@ bool getSPIRVBuiltin(const std::string &Name, spv::BuiltIn &Builtin);
 /// \param DemangledName demanged name of the OpenCL built-in function
 /// \returns true if Name is the name of the OpenCL built-in function,
 /// false for other functions
-bool oclIsBuiltin(StringRef Name, StringRef &DemangledName, bool IsCpp = false);
+bool glslIsBuiltin(StringRef Name, StringRef &DemangledName,
+                   bool IsCpp = false);
 
 /// Check if a function returns void
 bool isVoidFuncTy(FunctionType *FT);
@@ -891,7 +892,7 @@ bool getRetParamSignedness(Function *F, ParamSignedness &RetSignedness,
 
 /// Mangle a function from OpenCL extended instruction set in SPIR-V friendly IR
 /// manner
-std::string getSPIRVFriendlyIRFunctionName(OCLExtOpKind ExtOpId,
+std::string getSPIRVFriendlyIRFunctionName(GLSLExtOpKind ExtOpId,
                                            ArrayRef<Type *> ArgTys,
                                            Type *RetTy = nullptr);
 
@@ -951,7 +952,7 @@ bool hasLoopMetadata(const Module *M);
 
 // Check if CI is a call to instruction from OpenCL Extended Instruction Set.
 // If so, return it's extended opcode in ExtOp.
-bool isSPIRVOCLExtInst(const CallInst *CI, OCLExtOpKind *ExtOp);
+bool isSPIRVGLSLExtInst(const CallInst *CI, GLSLExtOpKind *ExtOp);
 
 /// Returns true if a function name corresponds to an OpenCL builtin that is not
 /// expected to have name mangling.

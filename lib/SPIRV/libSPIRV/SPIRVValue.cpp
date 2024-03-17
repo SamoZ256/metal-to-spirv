@@ -79,6 +79,7 @@ bool SPIRVValue::hasNoUnsignedWrap() const {
   return hasDecorate(DecorationNoUnsignedWrap);
 }
 
+/*
 void SPIRVValue::setFPFastMathMode(SPIRVWord M) {
   if (M == 0) {
     eraseDecorate(DecorationFPFastMathMode);
@@ -88,6 +89,7 @@ void SPIRVValue::setFPFastMathMode(SPIRVWord M) {
   SPIRVDBG(spvdbgs() << "Set fast math mode to " << M << " for obj " << Id
                      << "\n")
 }
+*/
 
 template <spv::Decoration NoIntegerWrapDecoration>
 void SPIRVValue::setNoIntegerDecorationWrap(bool HasNoIntegerWrap) {

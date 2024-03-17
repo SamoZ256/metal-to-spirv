@@ -48,7 +48,6 @@
 #include "SPIRVMemAliasingINTEL.h"
 #include "SPIRVModule.h"
 #include "SPIRVToLLVMDbgTran.h"
-#include "SPIRVToOCL.h"
 #include "SPIRVType.h"
 #include "SPIRVUtil.h"
 #include "SPIRVValue.h"
@@ -1641,28 +1640,6 @@ Value *SPIRVToLLVM::transValueWithoutDecoration(SPIRVValue *BV, Function *F,
   // Translation of instructions
   int OpCode = BV->getOpCode();
   switch (OpCode) {
-  case OpVariableLengthArrayINTEL: {
-    auto *VLA = static_cast<SPIRVVariableLengthArrayINTEL *>(BV);
-    llvm::Type *Ty = transType(BV->getType()->getPointerElementType());
-    llvm::Value *ArrSize = transValue(VLA->getOperand(0), F, BB);
-    return mapValue(
-        BV, new AllocaInst(Ty, SPIRAS_Private, ArrSize, BV->getName(), BB));
-  }
-
-  case OpRestoreMemoryINTEL: {
-    IRBuilder<> Builder(BB);
-    auto *Restore = static_cast<SPIRVRestoreMemoryINTEL *>(BV);
-    llvm::Value *Ptr = transValue(Restore->getOperand(0), F, BB);
-    auto *StackRestore = Builder.CreateStackRestore(Ptr);
-    return mapValue(BV, StackRestore);
-  }
-
-  case OpSaveMemoryINTEL: {
-    IRBuilder<> Builder(BB);
-    auto *StackSave = Builder.CreateStackSave();
-    return mapValue(BV, StackSave);
-  }
-
   case OpBranch: {
     auto *BR = static_cast<SPIRVBranch *>(BV);
     auto *BI = BranchInst::Create(
@@ -2402,10 +2379,9 @@ Value *SPIRVToLLVM::transValueWithoutDecoration(SPIRVValue *BV, Function *F,
   case OpExtInst: {
     auto *ExtInst = static_cast<SPIRVExtInst *>(BV);
     switch (ExtInst->getExtSetKind()) {
-    case SPIRVEIS_OpenCL:
+    case SPIRVEIS_GLSL_450:
       return mapValue(BV, transOCLBuiltinFromExtInst(ExtInst, BB));
     case SPIRVEIS_Debug:
-    case SPIRVEIS_OpenCL_DebugInfo_100:
     case SPIRVEIS_NonSemantic_Shader_DebugInfo_100:
     case SPIRVEIS_NonSemantic_Shader_DebugInfo_200:
       return mapValue(BV, DbgTran->transDebugIntrinsic(ExtInst, BB));
@@ -4576,7 +4552,8 @@ bool SPIRVToLLVM::transVectorComputeMetadata(SPIRVFunction *BF) {
     F->addFnAttr(Attr);
   }
 
-  if (auto *EM = BF->getExecutionMode(ExecutionModeSharedLocalMemorySizeINTEL)) {
+  if (auto *EM =
+          BF->getExecutionMode(ExecutionModeSharedLocalMemorySizeINTEL)) {
     unsigned int SLMSize = EM->getLiterals()[0];
     Attribute Attr = Attribute::get(*Context, kVCMetadata::VCSLMSize,
                                     std::to_string(SLMSize));
@@ -4670,10 +4647,10 @@ bool SPIRVToLLVM::transAlign(SPIRVValue *BV, Value *V) {
 Instruction *SPIRVToLLVM::transOCLBuiltinFromExtInst(SPIRVExtInst *BC,
                                                      BasicBlock *BB) {
   assert(BB && "Invalid BB");
-  auto ExtOp = static_cast<OCLExtOpKind>(BC->getExtOp());
+  auto ExtOp = static_cast<GLSLExtOpKind>(BC->getExtOp());
   std::string UnmangledName = OCLExtOpMap::map(ExtOp);
 
-  assert(BM->getBuiltinSet(BC->getExtSetId()) == SPIRVEIS_OpenCL &&
+  assert(BM->getBuiltinSet(BC->getExtSetId()) == SPIRVEIS_GLSL_450 &&
          "Not OpenCL extended instruction");
 
   std::vector<Type *> ArgTypes = transTypeVector(BC->getArgTypes(), true);
@@ -5040,7 +5017,7 @@ llvm::convertSpirvToLLVM(LLVMContext &C, SPIRVModule &BM,
   }
 
   llvm::ModulePassManager PassMgr;
-  addSPIRVBIsLoweringPass(PassMgr, Opts.getDesiredBIsRepresentation());
+  // addSPIRVBIsLoweringPass(PassMgr, Opts.getDesiredBIsRepresentation());
   llvm::ModuleAnalysisManager MAM;
   MAM.registerPass([&] { return PassInstrumentationAnalysis(); });
   PassMgr.run(*M, MAM);

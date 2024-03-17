@@ -95,7 +95,6 @@ SPIRVExtInst *SPIRVToLLVMDbgTran::getDbgInst(const SPIRVId Id) {
   if (isa<OpExtInst>(E)) {
     SPIRVExtInst *EI = static_cast<SPIRVExtInst *>(E);
     if (EI->getExtSetKind() == SPIRV::SPIRVEIS_Debug ||
-        EI->getExtSetKind() == SPIRV::SPIRVEIS_OpenCL_DebugInfo_100 ||
         EI->getExtSetKind() ==
             SPIRV::SPIRVEIS_NonSemantic_Shader_DebugInfo_100 ||
         EI->getExtSetKind() == SPIRV::SPIRVEIS_NonSemantic_Shader_DebugInfo_200)
@@ -516,8 +515,6 @@ SPIRVToLLVMDbgTran::transTypeComposite(const SPIRVExtInst *DebugInst) {
   uint64_t Size = 0;
   SPIRVEntry *SizeEntry = BM->getEntry(Ops[SizeIdx]);
   if (!(SizeEntry->isExtInst(SPIRVEIS_Debug, SPIRVDebug::DebugInfoNone) ||
-        SizeEntry->isExtInst(SPIRVEIS_OpenCL_DebugInfo_100,
-                             SPIRVDebug::DebugInfoNone) ||
         SizeEntry->isExtInst(SPIRVEIS_NonSemantic_Shader_DebugInfo_200,
                              SPIRVDebug::DebugInfoNone))) {
     Size = BM->get<SPIRVConstant>(Ops[SizeIdx])->getZExtIntValue();
@@ -810,7 +807,7 @@ DINode *SPIRVToLLVMDbgTran::transTypeEnum(const SPIRVExtInst *DebugInst) {
       UnderlyingType = transDebugInst<DIType>(static_cast<SPIRVExtInst *>(E));
     return getDIBuilder(DebugInst).createEnumerationType(
         Scope, Name, File, LineNo, SizeInBits, AlignInBits, Enumerators,
-        UnderlyingType, 0, "", UnderlyingType);
+        UnderlyingType);
   }
 }
 
@@ -1375,10 +1372,7 @@ DINode *SPIRVToLLVMDbgTran::transModule(const SPIRVExtInst *DebugInst) {
   // NonSemantic.Shader.200 spec), we should not apply the rule "literals are
   // not allowed for NonSemantic specification". This is a hack to avoid getting
   // constant value instead of literal in such case.
-  const SPIRVExtInstSetKind ExtKind =
-      DebugInst->getExtOp() == SPIRVDebug::Instruction::ModuleINTEL
-          ? SPIRVEIS_OpenCL_DebugInfo_100
-          : DebugInst->getExtSetKind();
+  const SPIRVExtInstSetKind ExtKind = DebugInst->getExtSetKind();
   SPIRVWord Line = getConstantValueOrLiteral(Ops, LineIdx, ExtKind);
   DIFile *File = getFile(Ops[SourceIdx]);
   StringRef Name = getString(Ops[NameIdx]);

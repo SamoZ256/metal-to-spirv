@@ -193,7 +193,7 @@ void OCLTypeToSPIRVBase::adaptArgumentsBySamplerUse(Module &M) {
       continue;
     auto MangledName = F.getName();
     StringRef DemangledName;
-    if (!oclIsBuiltin(MangledName, DemangledName, false))
+    if (!glslIsBuiltin(MangledName, DemangledName, false))
       continue;
     if (DemangledName.find(kSPIRVName::SampledImage) == std::string::npos)
       continue;

@@ -157,11 +157,10 @@ static cl::opt<SPIRV::BIsRepresentation> BIsRepresentation(
                    "SPIR-V Friendly IR")),
     cl::init(SPIRV::BIsRepresentation::OpenCL12));
 
-static cl::opt<bool>
-    PreserveOCLKernelArgTypeMetadataThroughString(
-        "preserve-ocl-kernel-arg-type-metadata-through-string", cl::init(false),
-        cl::desc("Preserve OpenCL kernel_arg_type and kernel_arg_type_qual "
-                 "metadata through OpString"));
+static cl::opt<bool> PreserveOCLKernelArgTypeMetadataThroughString(
+    "preserve-ocl-kernel-arg-type-metadata-through-string", cl::init(false),
+    cl::desc("Preserve OpenCL kernel_arg_type and kernel_arg_type_qual "
+             "metadata through OpString"));
 
 static cl::opt<bool>
     SPIRVToolsDis("spirv-tools-dis", cl::init(false),
@@ -200,9 +199,10 @@ static cl::opt<bool>
     SPIRVMemToReg("spirv-mem2reg", cl::init(false),
                   cl::desc("LLVM/SPIR-V translation enable mem2reg"));
 
-static cl::opt<bool> SPIRVPreserveAuxData(
-    "spirv-preserve-auxdata", cl::init(false),
-    cl::desc("Preserve all auxiliary data, such as function attributes and metadata"));
+static cl::opt<bool>
+    SPIRVPreserveAuxData("spirv-preserve-auxdata", cl::init(false),
+                         cl::desc("Preserve all auxiliary data, such as "
+                                  "function attributes and metadata"));
 
 static cl::opt<bool> SpecConstInfo(
     "spec-const-info",
@@ -236,16 +236,11 @@ static cl::opt<bool> SPIRVAllowExtraDIExpressions(
 
 static cl::opt<SPIRV::DebugInfoEIS> DebugEIS(
     "spirv-debug-info-version", cl::desc("Set SPIR-V debug info version:"),
-    cl::init(SPIRV::DebugInfoEIS::OpenCL_DebugInfo_100),
     cl::values(
         clEnumValN(SPIRV::DebugInfoEIS::SPIRV_Debug, "legacy",
                    "Emit debug info compliant with the SPIRV.debug extended "
                    "instruction set. This option is used for compatibility "
                    "with older versions of the translator"),
-        clEnumValN(SPIRV::DebugInfoEIS::OpenCL_DebugInfo_100, "ocl-100",
-                   "Emit debug info compliant with the OpenCL.DebugInfo.100 "
-                   "extended instruction set. This version of SPIR-V debug "
-                   "info format is compatible with the SPIRV-Tools"),
         clEnumValN(
             SPIRV::DebugInfoEIS::NonSemantic_Shader_DebugInfo_100,
             "nonsemantic-shader-100",
@@ -394,7 +389,7 @@ static bool isFileEmpty(const std::string &FileName) {
 
 static int convertSPIRVToLLVM(const SPIRV::TranslatorOpts &Opts) {
   LLVMContext Context;
-  
+
   std::ifstream IFS(InputFile, std::ios::binary);
   Module *M;
   std::string Err;
@@ -767,8 +762,7 @@ int main(int Ac, char **Av) {
   }
 
   if (SPIRVPreserveAuxData) {
-    Opts.setPreserveAuxData(
-        SPIRVPreserveAuxData);
+    Opts.setPreserveAuxData(SPIRVPreserveAuxData);
     if (!IsReverse)
       Opts.setAllowedToUseExtension(
           SPIRV::ExtensionID::SPV_KHR_non_semantic_info);
@@ -808,9 +802,9 @@ int main(int Ac, char **Av) {
           SPIRV::DebugInfoEIS::NonSemantic_Shader_DebugInfo_200)
         Opts.setAllowExtraDIExpressionsEnabled(true);
       if (DebugEIS.getValue() ==
-          SPIRV::DebugInfoEIS::NonSemantic_Shader_DebugInfo_100 ||
+              SPIRV::DebugInfoEIS::NonSemantic_Shader_DebugInfo_100 ||
           DebugEIS.getValue() ==
-          SPIRV::DebugInfoEIS::NonSemantic_Shader_DebugInfo_200)
+              SPIRV::DebugInfoEIS::NonSemantic_Shader_DebugInfo_200)
         Opts.setAllowedToUseExtension(
             SPIRV::ExtensionID::SPV_KHR_non_semantic_info);
     }
@@ -868,7 +862,8 @@ int main(int Ac, char **Av) {
     std::optional<SPIRV::SPIRVModuleReport> BinReport =
         SPIRV::getSpirvReport(IFS, ErrCode);
     if (!BinReport) {
-      std::cerr << "Invalid SPIR-V binary: \"" << SPIRV::getErrorMessage(ErrCode) << "\"\n";
+      std::cerr << "Invalid SPIR-V binary: \""
+                << SPIRV::getErrorMessage(ErrCode) << "\"\n";
       return -1;
     }
 
@@ -893,7 +888,8 @@ int main(int Ac, char **Av) {
     std::cout << " Number of extended instruction sets: "
               << TextReport.ExtendedInstructionSets.size() << "\n";
     for (auto &ExtendedInstructionSet : TextReport.ExtendedInstructionSets)
-      std::cout << "  Extended Instruction Set: " << ExtendedInstructionSet << "\n";
+      std::cout << "  Extended Instruction Set: " << ExtendedInstructionSet
+                << "\n";
   }
   return 0;
 }
